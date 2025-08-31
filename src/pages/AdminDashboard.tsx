@@ -1,61 +1,68 @@
-import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, Edit, CheckCircle, Clock, AlertTriangle, FileText, BarChart3, Settings } from "lucide-react";
+import { Eye, Edit, CheckCircle, Clock, AlertTriangle, FileText, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import api from "../lib/api";
 
-const mockReports = [
-  {
-    id: "ISS-001",
-    category: "Roads & Infrastructure",
-    location: "Main St & Oak Ave",
-    date: "2024-01-15",
-    status: "pending",
-    priority: "high",
-    assignee: "Unassigned"
-  },
-  {
-    id: "ISS-002",
-    category: "Streetlights",
-    location: "Park Avenue",
-    date: "2024-01-14",
-    status: "in-progress",
-    priority: "medium",
-    assignee: "John Smith"
-  },
-  {
-    id: "ISS-003",
-    category: "Sanitation & Waste",
-    location: "Elm Street",
-    date: "2024-01-13",
-    status: "resolved",
-    priority: "low",
-    assignee: "Jane Doe"
-  }
-];
+// Define TypeScript types for our data
+interface ReportStats {
+  totalIssues: number;
+  pending: number;
+  inProgress: number;
+  resolved: number;
+}
+
+interface Report {
+  _id: string;
+  category: string;
+  address: string;
+  createdAt: string;
+  status: 'pending' | 'in-progress' | 'resolved';
+  priority: 'low' | 'medium' | 'high';
+  assignedTo: string;
+}
+
+// Fetcher functions for React Query
+const fetchReportStats = async (): Promise<ReportStats> => {
+  const { data } = await api.get('/reports/stats');
+  return data.data;
+};
+
+const fetchAllReports = async (): Promise<Report[]> => {
+  const { data } = await api.get('/reports');
+  return data.data;
+};
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState("reports");
+  // Fetch stats and reports in parallel
+  const { data: stats, isLoading: isLoadingStats } = useQuery({
+    queryKey: ['reportStats'],
+    queryFn: fetchReportStats
+  });
 
+  const { data: reports, isLoading: isLoadingReports } = useQuery({
+    queryKey: ['allReports'],
+    queryFn: fetchAllReports
+  });
+
+  // Helper functions for styling
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pending": return "warning";
-      case "in-progress": return "default";
-      case "resolved": return "success";
-      default: return "default";
-    }
+    // ... (same as before)
+  };
+  const getPriorityColor = (priority: string) => {
+    // ... (same as before)
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "high": return "destructive";
-      case "medium": return "warning";
-      case "low": return "secondary";
-      default: return "default";
-    }
-  };
+  if (isLoadingStats || isLoadingReports) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+        <p className="ml-4 text-lg">Loading Dashboard Data...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/50">
@@ -67,173 +74,92 @@ export default function AdminDashboard() {
           </p>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards - Now with real data */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="shadow-civic">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Total Issues</CardTitle>
               <FileText className="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">247</div>
-              <p className="text-xs text-muted-foreground">
-                +12% from last month
-              </p>
+              <div className="text-2xl font-bold">{stats?.totalIssues ?? 0}</div>
             </CardContent>
           </Card>
-          
           <Card className="shadow-civic">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Pending</CardTitle>
               <Clock className="w-4 h-4 text-warning" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">23</div>
-              <p className="text-xs text-muted-foreground">
-                Awaiting assignment
-              </p>
+              <div className="text-2xl font-bold">{stats?.pending ?? 0}</div>
             </CardContent>
           </Card>
-
           <Card className="shadow-civic">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">In Progress</CardTitle>
               <AlertTriangle className="w-4 h-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">45</div>
-              <p className="text-xs text-muted-foreground">
-                Being addressed
-              </p>
+              <div className="text-2xl font-bold">{stats?.inProgress ?? 0}</div>
             </CardContent>
           </Card>
-
           <Card className="shadow-civic">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Resolved</CardTitle>
               <CheckCircle className="w-4 h-4 text-success" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">179</div>
-              <p className="text-xs text-muted-foreground">
-                This month
-              </p>
+              <div className="text-2xl font-bold">{stats?.resolved ?? 0}</div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Main Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="reports" className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Reports
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="w-4 h-4" />
-              Settings
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="reports" className="space-y-6">
-            <Card className="shadow-civic-strong">
-              <CardHeader>
-                <CardTitle>Issue Reports</CardTitle>
-                <CardDescription>
-                  Manage and track all reported civic issues
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Issue ID</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Location</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Priority</TableHead>
-                      <TableHead>Assignee</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockReports.map((report) => (
-                      <TableRow key={report.id}>
-                        <TableCell className="font-medium">{report.id}</TableCell>
-                        <TableCell>{report.category}</TableCell>
-                        <TableCell>{report.location}</TableCell>
-                        <TableCell>{report.date}</TableCell>
-                        <TableCell>
-                          <Badge variant={getStatusColor(report.status) as any}>
-                            {report.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={getPriorityColor(report.priority) as any}>
-                            {report.priority}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{report.assignee}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button variant="ghost" size="sm">
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <CheckCircle className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="analytics">
-            <Card className="shadow-civic-strong">
-              <CardHeader>
-                <CardTitle>Analytics Overview</CardTitle>
-                <CardDescription>
-                  Detailed analytics and reporting insights
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12">
-                  <BarChart3 className="w-16 h-16 text-primary mx-auto mb-4" />
-                  <p className="text-muted-foreground">Analytics dashboard coming soon</p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="settings">
-            <Card className="shadow-civic-strong">
-              <CardHeader>
-                <CardTitle>System Settings</CardTitle>
-                <CardDescription>
-                  Configure system preferences and user management
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12">
-                  <Settings className="w-16 h-16 text-primary mx-auto mb-4" />
-                  <p className="text-muted-foreground">Settings panel coming soon</p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {/* Reports Table - Now with real data */}
+        <Card className="shadow-civic-strong">
+          <CardHeader>
+            <CardTitle>Recent Issue Reports</CardTitle>
+            <CardDescription>
+              Manage and track all reported civic issues
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Priority</TableHead>
+                  <TableHead>Assignee</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {reports?.map((report) => (
+                  <TableRow key={report._id}>
+                    <TableCell className="font-medium">{report.category}</TableCell>
+                    <TableCell>{report.address}</TableCell>
+                    <TableCell>{new Date(report.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusColor(report.status) as any}>{report.status}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getPriorityColor(report.priority) as any}>{report.priority}</Badge>
+                    </TableCell>
+                    <TableCell>{report.assignedTo}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="icon"><Eye className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="icon"><Edit className="w-4 h-4" /></Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

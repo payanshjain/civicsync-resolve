@@ -231,11 +231,10 @@ const Index = () => {
             </Button>
             <Button 
               size="lg" 
-              variant="outline" 
-              className="border-white text-white hover:bg-white hover:text-primary text-lg px-8 py-6"
+              className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6"
               asChild
             >
-              <Link to="/login">Sign In</Link>
+              <Link to="/login">Sign in</Link>
             </Button>
           </div>
         </div>
