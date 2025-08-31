@@ -38,54 +38,140 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section 
-        className="relative h-screen flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: `url(${heroImage})` }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-primary-dark/80"></div>
-        <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
-            Make Your City Better
+      <section className="relative bg-primary py-20 text-foreground">
+        <div className="container mx-auto px-4 text-center max-w-4xl">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
+            Report, view, or discuss local problems
           </h1>
-          <p className="text-xl md:text-2xl mb-8 text-white/90 animate-fade-in">
-            Report civic issues, track their progress, and help build a stronger community together
+          <p className="text-lg md:text-xl mb-8 opacity-80 animate-fade-in">
+            (like graffiti, fly tipping, broken paving slabs, or street lighting)
           </p>
+          
+          <div className="max-w-2xl mx-auto mb-8 animate-fade-in">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input 
+                type="text" 
+                placeholder="Enter a nearby postcode, or street name and area:"
+                className="flex-1 px-4 py-3 rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground"
+              />
+              <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 px-8">
+                Go
+              </Button>
+            </div>
+            <Button 
+              variant="outline" 
+              className="mt-4 border-foreground text-foreground hover:bg-foreground/10"
+            >
+              📍 Use my current location
+            </Button>
+          </div>
+          
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
             <Button 
               size="lg" 
-              className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6"
+              className="bg-foreground text-background hover:bg-foreground/90 text-lg px-8 py-3"
               asChild
             >
-              <Link to="/report">Report an Issue</Link>
+              <Link to="/report">Report a Problem</Link>
             </Button>
             <Button 
               size="lg" 
-              variant="outline" 
-              className="border-white text-white hover:bg-white/10 text-lg px-8 py-6"
+              variant="outline"
+              className="border-foreground text-foreground hover:bg-foreground/10 text-lg px-8 py-3"
               asChild
             >
-              <Link to="/map">View City Map</Link>
+              <Link to="/map">View All Reports</Link>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-gradient-card">
+      {/* How to Report Section */}
+      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <Card key={index} className="text-center shadow-civic hover:shadow-civic-strong transition-shadow">
-                  <CardContent className="p-6">
-                    <Icon className="w-8 h-8 text-primary mx-auto mb-3" />
-                    <div className="text-3xl font-bold text-foreground mb-1">{stat.value}</div>
-                    <div className="text-sm text-muted-foreground">{stat.label}</div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+          <div className="grid md:grid-cols-2 gap-12 items-start">
+            {/* Left Column - How to Report */}
+            <div>
+              <h2 className="text-3xl font-bold text-foreground mb-8">
+                How to report a problem
+              </h2>
+              <div className="space-y-6">
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-lg">
+                    1
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">Enter a nearby postcode, or street name and area</h3>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-lg">
+                    2
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">Locate the problem on a map of the area</h3>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-lg">
+                    3
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">Enter details of the problem</h3>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-lg">
+                    4
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">We send it to the council on your behalf</h3>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Stats */}
+              <div className="mt-12 grid grid-cols-3 gap-6 text-center">
+                <div>
+                  <div className="text-3xl font-bold text-foreground">{stats[0].value}</div>
+                  <div className="text-sm text-muted-foreground">{stats[0].label}</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-foreground">{stats[1].value}</div>
+                  <div className="text-sm text-muted-foreground">Fixed in Past Month</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-foreground">{stats[2].value}</div>
+                  <div className="text-sm text-muted-foreground">Updates on Reports</div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Right Column - Recent Reports */}
+            <div>
+              <h2 className="text-3xl font-bold text-foreground mb-8">
+                Recently reported problems
+              </h2>
+              <div className="space-y-4">
+                <div className="border-l-4 border-primary pl-4 py-2">
+                  <div className="text-sm text-muted-foreground mb-1">By roadside</div>
+                  <div className="text-sm text-muted-foreground mb-2">09:51 today, last updated 09:51 today</div>
+                  <h4 className="font-medium text-foreground">Sunken drain cover o/s 72 Chertsey Road</h4>
+                </div>
+                <div className="border-l-4 border-primary pl-4 py-2">
+                  <div className="text-sm text-muted-foreground mb-2">09:46 today</div>
+                  <h4 className="font-medium text-foreground">Manhole cover at entrance to Hancock drive is loose and rattles every time a vehicle goes over it has been like this for months</h4>
+                </div>
+                <div className="border-l-4 border-primary pl-4 py-2">
+                  <div className="text-sm text-muted-foreground mb-1">09:45 today, last updated 10:04 today</div>
+                  <h4 className="font-medium text-foreground">Street tree knocked over</h4>
+                </div>
+                <div className="border-l-4 border-primary pl-4 py-2">
+                  <div className="text-sm text-muted-foreground mb-1">09:45 today, last updated 09:45 today</div>
+                  <h4 className="font-medium text-foreground">Top of fulwood ave</h4>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
