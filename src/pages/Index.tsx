@@ -232,7 +232,7 @@ const Index = () => {
             <Button 
               size="lg" 
               variant="outline" 
-              className="border-white text-white hover:bg-white/10 text-lg px-8 py-6"
+              className="border-white text-white hover:bg-white hover:text-primary text-lg px-8 py-6"
               asChild
             >
               <Link to="/login">Sign In</Link>

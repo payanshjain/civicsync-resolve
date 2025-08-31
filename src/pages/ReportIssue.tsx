@@ -9,12 +9,19 @@ import { MapPin, Camera, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const issueCategories = [
-  "Roads & Infrastructure", 
+  "Roads & Potholes", 
   "Water & Utilities", 
   "Sanitation & Waste", 
-  "Streetlights", 
-  "Parks & Recreation",
+  "Streetlights & Power",
+  "Pan Masala Spitting & Stains",
+  "Littering & Garbage Dumping",
+  "Illegal Parking",
+  "Noise Pollution",
+  "Parks & Public Spaces",
   "Public Safety",
+  "Drainage & Sewerage",
+  "Illegal Construction",
+  "Encroachment on Footpaths",
   "Other"
 ];
 
