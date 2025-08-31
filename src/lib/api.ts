@@ -1,14 +1,12 @@
 import axios from 'axios';
 
-// Create an axios instance
 const api = axios.create({
-  baseURL: 'http://localhost:5001/api',
+  baseURL: import.meta.env.VITE_API_URL, // or process.env.REACT_APP_API_URL if CRA
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Add a request interceptor to include the token in headers
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -17,9 +15,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 export default api;
