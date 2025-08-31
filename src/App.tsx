@@ -7,6 +7,7 @@ import { Layout } from "@/components/Layout";
 import Index from "./pages/Index";
 import ReportIssue from "./pages/ReportIssue";
 import MapView from "./pages/MapView";
+import MyIssues from "./pages/MyIssues";
 import AdminDashboard from "./pages/AdminDashboard";
 import Analytics from "./pages/Analytics";
 import Login from "./pages/Login";
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/" element={<Layout><Index /></Layout>} />
           <Route path="/report" element={<Layout><ReportIssue /></Layout>} />
           <Route path="/map" element={<Layout><MapView /></Layout>} />
+          <Route path="/my-issues" element={<Layout><MyIssues /></Layout>} />
           <Route path="/admin" element={<Layout><AdminDashboard /></Layout>} />
           <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
           <Route path="/login" element={<Login />} />

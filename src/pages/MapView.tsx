@@ -148,29 +148,38 @@ export default function MapView() {
               <div className="space-y-4 max-h-96 overflow-y-auto">
                 {filteredIssues.map((issue) => (
                   <div key={issue.id} className="border border-border rounded-lg p-4 hover:bg-secondary/50 transition-colors">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex gap-2">
-                        <Badge variant={getStatusColor(issue.status) as any}>
-                          {issue.status}
-                        </Badge>
-                        <Badge variant={getPriorityColor(issue.priority) as any}>
-                          {issue.priority}
-                        </Badge>
+                    <div className="flex gap-3">
+                      {/* Placeholder Image */}
+                      <div className="w-16 h-16 bg-gradient-to-br from-primary-light to-primary rounded-lg flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-6 h-6 text-primary" />
                       </div>
-                      <Button variant="ghost" size="sm">
-                        <Eye className="w-4 h-4" />
-                      </Button>
+                      
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex gap-2">
+                            <Badge variant={getStatusColor(issue.status) as any}>
+                              {issue.status}
+                            </Badge>
+                            <Badge variant={getPriorityColor(issue.priority) as any}>
+                              {issue.priority}
+                            </Badge>
+                          </div>
+                          <Button variant="ghost" size="sm">
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <h3 className="font-semibold text-foreground">{issue.category}</h3>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          <MapPin className="w-3 h-3 inline mr-1" />
+                          {issue.location}
+                        </p>
+                        <p className="text-sm text-foreground mb-2">{issue.description}</p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {issue.date}
+                        </p>
+                      </div>
                     </div>
-                    <h3 className="font-semibold text-foreground">{issue.category}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      <MapPin className="w-3 h-3 inline mr-1" />
-                      {issue.location}
-                    </p>
-                    <p className="text-sm text-foreground mb-2">{issue.description}</p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {issue.date}
-                    </p>
                   </div>
                 ))}
               </div>

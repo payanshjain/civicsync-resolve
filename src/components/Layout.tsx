@@ -8,6 +8,7 @@ const navigation = [
   { name: "Home", href: "/", icon: MapPin },
   { name: "Report Issue", href: "/report", icon: FileText },
   { name: "View Map", href: "/map", icon: MapPin },
+  { name: "My Issues", href: "/my-issues", icon: FileText },
   { name: "Dashboard", href: "/admin", icon: BarChart3 },
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
 ];
