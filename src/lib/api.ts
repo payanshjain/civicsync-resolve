@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL, // or process.env.REACT_APP_API_URL if CRA
+  baseURL: 'https://civic-sih-backend-production.up.railway.app', // or process.env.REACT_APP_API_URL if CRA
   headers: {
     'Content-Type': 'application/json',
   },
