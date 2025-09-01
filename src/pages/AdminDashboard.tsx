@@ -8,20 +8,24 @@ import api from "../lib/api";
 
 // Define TypeScript types for our data
 interface ReportStats {
-  totalIssues: number;
+  total: number;
   pending: number;
-  inProgress: number;
+  inProgress?: number;
   resolved: number;
 }
 
 interface Report {
   _id: string;
+  title: string;
+  description: string;
   category: string;
-  address: string;
+  location: string;
   createdAt: string;
   status: 'pending' | 'in-progress' | 'resolved';
-  priority: 'low' | 'medium' | 'high';
-  assignedTo: string;
+  priority?: 'low' | 'medium' | 'high';
+  userId: {
+    email: string;
+  };
 }
 
 // Fetcher functions for React Query
@@ -37,22 +41,43 @@ const fetchAllReports = async (): Promise<Report[]> => {
 
 export default function AdminDashboard() {
   // Fetch stats and reports in parallel
-  const { data: stats, isLoading: isLoadingStats } = useQuery({
+  const { data: stats, isLoading: isLoadingStats, error: statsError } = useQuery({
     queryKey: ['reportStats'],
-    queryFn: fetchReportStats
+    queryFn: fetchReportStats,
+    retry: 1
   });
 
-  const { data: reports, isLoading: isLoadingReports } = useQuery({
+  const { data: reports, isLoading: isLoadingReports, error: reportsError } = useQuery({
     queryKey: ['allReports'],
-    queryFn: fetchAllReports
+    queryFn: fetchAllReports,
+    retry: 1
   });
 
   // Helper functions for styling
   const getStatusColor = (status: string) => {
-    // ... (same as before)
+    switch (status) {
+      case 'pending':
+        return 'secondary';
+      case 'in-progress':
+        return 'default';
+      case 'resolved':
+        return 'secondary';
+      default:
+        return 'outline';
+    }
   };
+
   const getPriorityColor = (priority: string) => {
-    // ... (same as before)
+    switch (priority) {
+      case 'high':
+        return 'destructive';
+      case 'medium':
+        return 'default';
+      case 'low':
+        return 'secondary';
+      default:
+        return 'outline';
+    }
   };
 
   if (isLoadingStats || isLoadingReports) {
@@ -60,6 +85,20 @@ export default function AdminDashboard() {
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
         <p className="ml-4 text-lg">Loading Dashboard Data...</p>
+      </div>
+    );
+  }
+
+  if (statsError || reportsError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <AlertTriangle className="w-16 h-16 text-destructive mx-auto mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Failed to Load Dashboard</h2>
+          <p className="text-muted-foreground">
+            Error loading dashboard data. Please check your connection and try again.
+          </p>
+        </div>
       </div>
     );
   }
@@ -74,7 +113,7 @@ export default function AdminDashboard() {
           </p>
         </div>
 
-        {/* Stats Cards - Now with real data */}
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="shadow-civic">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -82,7 +121,7 @@ export default function AdminDashboard() {
               <FileText className="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats?.totalIssues ?? 0}</div>
+              <div className="text-2xl font-bold">{stats?.total ?? 0}</div>
             </CardContent>
           </Card>
           <Card className="shadow-civic">
@@ -114,7 +153,7 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        {/* Reports Table - Now with real data */}
+        {/* Reports Table */}
         <Card className="shadow-civic-strong">
           <CardHeader>
             <CardTitle>Recent Issue Reports</CardTitle>
@@ -123,41 +162,59 @@ export default function AdminDashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Assignee</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {reports?.map((report) => (
-                  <TableRow key={report._id}>
-                    <TableCell className="font-medium">{report.category}</TableCell>
-                    <TableCell>{report.address}</TableCell>
-                    <TableCell>{new Date(report.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusColor(report.status) as any}>{report.status}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getPriorityColor(report.priority) as any}>{report.priority}</Badge>
-                    </TableCell>
-                    <TableCell>{report.assignedTo}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button variant="ghost" size="icon"><Eye className="w-4 h-4" /></Button>
-                        <Button variant="ghost" size="icon"><Edit className="w-4 h-4" /></Button>
-                      </div>
-                    </TableCell>
+            {reports && reports.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Reporter</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {reports.map((report) => (
+                    <TableRow key={report._id}>
+                      <TableCell className="font-medium">
+                        {report.title || 'Untitled Report'}
+                      </TableCell>
+                      <TableCell>{report.category || 'General'}</TableCell>
+                      <TableCell>{report.location || 'Not specified'}</TableCell>
+                      <TableCell>
+                        {new Date(report.createdAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={getStatusColor(report.status) as any}>
+                          {report.status.replace('-', ' ')}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{report.userId?.email || 'Anonymous'}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button variant="ghost" size="icon">
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-8">
+                <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Reports Yet</h3>
+                <p className="text-muted-foreground">
+                  Reports will appear here once users start submitting them.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

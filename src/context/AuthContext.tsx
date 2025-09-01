@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (token) {
         try {
           const { data } = await api.get('/auth/me');
-          console.log('User data from /auth/me:', data.data); // Debug log
+          console.log('AuthContext - User data from /auth/me:', data.data);
           setUser(data.data);
         } catch (error) {
           console.error("Session expired or token is invalid");
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = (token: string, userData: User) => {
-    console.log('Logging in user:', userData); // Debug log
+    console.log('AuthContext - Logging in user:', userData);
     localStorage.setItem('token', token);
     setUser(userData);
   };

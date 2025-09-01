@@ -63,22 +63,37 @@ export default function Login() {
   
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/profile');
+    if (isAuthenticated && user) {
+      // Redirect based on user role
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/profile');
+      }
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, user, navigate]);
 
   // Use useCallback to prevent function recreation on every render
   const handleLogin = useCallback(async (e) => {
     e.preventDefault();
     try {
       const response = await api.post('/auth/login', { email: loginEmail, password: loginPassword });
-      login(response.data.token, response.data.user);
+      const userData = response.data.user;
+      
+      console.log('Login response user data:', userData);
+      
+      login(response.data.token, userData);
       toast({ title: "Login Successful!", description: "Welcome back." });
-      navigate('/profile');
+      
+      // Redirect based on user role
+      if (userData.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/profile');
+      }
     } catch (error) {
       toast({ title: "Login Failed", description: error.response?.data?.message || "Invalid credentials.", variant: "destructive" });
     }
@@ -91,8 +106,12 @@ export default function Login() {
     }
     try {
       const response = await api.post('/auth/register', { email: signupEmail, phone: signupPhone, password: signupPassword });
-      login(response.data.token, response.data.user);
+      const userData = response.data.user;
+      
+      login(response.data.token, userData);
       toast({ title: "Account Created!", description: "Welcome to CivicSync." });
+      
+      // New users are regular users, so redirect to profile
       navigate('/profile');
     } catch (error) {
       toast({ title: "Signup Failed", description: error.response?.data?.message || "Could not create account.", variant: "destructive" });
