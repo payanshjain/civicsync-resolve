@@ -1,11 +1,12 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://civic-sih-backend-production.up.railway.app', // or process.env.REACT_APP_API_URL if CRA
+  baseURL: 'http://localhost:5001', // Changed to local backend
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
 
 api.interceptors.request.use(
   (config) => {
