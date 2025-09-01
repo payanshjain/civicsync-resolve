@@ -6,7 +6,7 @@ interface User {
   _id: string;
   email: string;
   phone: string;
-  role: 'citizen' | 'admin';
+  role: 'user' | 'admin'; // Changed from 'citizen' to 'user'
 }
 
 interface AuthContextType {
@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (token) {
         try {
           const { data } = await api.get('/auth/me');
+          console.log('User data from /auth/me:', data.data); // Debug log
           setUser(data.data);
         } catch (error) {
           console.error("Session expired or token is invalid");
@@ -43,6 +44,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = (token: string, userData: User) => {
+    console.log('Logging in user:', userData); // Debug log
     localStorage.setItem('token', token);
     setUser(userData);
   };
@@ -50,20 +52,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
-    // Redirect to home or login page after logout
     window.location.href = '/login';
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+        <Loader2 className="w-8 h-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated: !!user, user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{
+      isAuthenticated: !!user,
+      user,
+      login,
+      logout,
+      isLoading
+    }}>
       {children}
     </AuthContext.Provider>
   );
