@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 
@@ -6,7 +7,7 @@ interface User {
   _id: string;
   email: string;
   phone: string;
-  role: 'citizen' | 'admin';
+  role: 'user' | 'admin';
 }
 
 interface AuthContextType {
@@ -47,23 +48,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(userData);
   };
 
+  // Fixed logout method - no page refresh needed
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
-    // Redirect to home or login page after logout
-    window.location.href = '/login';
+    // Don't use window.location.href - this is handled by the Layout component
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated: !!user, user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{
+      isAuthenticated: !!user,
+      user,
+      login,
+      logout,
+      isLoading
+    }}>
       {children}
     </AuthContext.Provider>
   );
