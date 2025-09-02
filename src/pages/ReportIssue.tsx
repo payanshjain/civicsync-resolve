@@ -85,7 +85,6 @@ const createIssue = async (formData: FormData) => {
 
 export default function ReportIssue() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [severity, setSeverity] = useState(3);
   const [description, setDescription] = useState("");
@@ -213,7 +212,7 @@ export default function ReportIssue() {
   };
 
   const handleSubmit = () => {
-    if (!category || !address || !description || !title) {
+    if (!category || !address || !description) {
       return toast({
         title: "Missing Information",
         description: "Please fill out all required fields.",
@@ -225,7 +224,7 @@ export default function ReportIssue() {
     setUploadProgress(10);
 
     const formData = new FormData();
-    formData.append('title', title);
+    formData.append('title', category); // Use category as title since title field is removed
     formData.append('category', category);
     formData.append('address', address);
     formData.append('description', description);
@@ -278,24 +277,28 @@ export default function ReportIssue() {
           <div className="space-y-6">
             <div className="text-center">
               <h2 className="text-2xl font-bold mb-2">Issue Details</h2>
-              <p className="text-muted-foreground">Upload photos and set location</p>
+              <p className="text-muted-foreground">Select category, upload photos and set location</p>
             </div>
 
             <div className="space-y-4">
+              {/* Category Selection - Added to Step 1 */}
               <div>
-                <Label htmlFor="title">Issue Title</Label>
-                <Input
-                  id="title"
-                  placeholder="Brief description of the issue"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                />
+                <Label>Category</Label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select issue category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {issueCategories.map((cat) => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
                 <Label>Photos/Videos</Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center relative">
                   {photoPreview ? (
                     <div className="space-y-4">
                       <img src={photoPreview} alt="Preview" className="max-w-full h-48 object-cover rounded mx-auto" />
@@ -363,18 +366,12 @@ export default function ReportIssue() {
             </div>
 
             <div className="space-y-4">
+              {/* Show selected category as read-only */}
               <div>
-                <Label>Category</Label>
-                <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select issue category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {issueCategories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label>Selected Category</Label>
+                <div className="p-3 bg-gray-50 border rounded-md">
+                  {category || "No category selected"}
+                </div>
               </div>
 
               <div>
@@ -468,7 +465,6 @@ export default function ReportIssue() {
 
             <div className="space-y-4">
               <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-                <div><strong>Title:</strong> {title}</div>
                 <div><strong>Category:</strong> {category}</div>
                 <div><strong>Severity:</strong> Level {severity} - {getSeverityLabel(severity)}</div>
                 <div><strong>Location:</strong> {address}</div>
@@ -572,6 +568,7 @@ export default function ReportIssue() {
                 ) : (
                   <Button 
                     onClick={nextStep}
+                    disabled={currentStep === 1 && !category} // Disable if no category selected in step 1
                     className="bg-gradient-to-r from-blue-500 to-blue-600 text-white flex items-center gap-2"
                   >
                     Next
