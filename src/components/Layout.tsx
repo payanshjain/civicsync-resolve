@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { MapPin, FileText, BarChart3, User, LogOut, Menu, X, Home } from "lucide-react";
 import { useState, ReactNode } from "react";
@@ -8,13 +8,8 @@ import { useAuth } from "../context/AuthContext";
 export function Layout({ children }: { children: ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
-
-  // Debug logs to help troubleshoot admin access
-  console.log('Layout - Current user:', user);
-  console.log('Layout - User role:', user?.role);
-  console.log('Layout - Is authenticated:', isAuthenticated);
-  console.log('Layout - Is admin?', user?.role === 'admin');
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -30,7 +25,11 @@ export function Layout({ children }: { children: ReactNode }) {
 
   const visibleNavigation = navigation.filter(item => item.show);
 
-  console.log('Layout - Visible navigation:', visibleNavigation.map(nav => nav.name));
+  // Fixed logout handler using React Router
+  const handleLogout = () => {
+    logout(); // Clear token and user state
+    navigate('/login'); // Use React Router navigation instead of window.location
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -82,8 +81,9 @@ export function Layout({ children }: { children: ReactNode }) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="text-muted-foreground hover:text-foreground"
+                  title="Sign Out"
                 >
                   <LogOut className="w-4 h-4" />
                 </Button>
@@ -148,7 +148,7 @@ export function Layout({ children }: { children: ReactNode }) {
                     </div>
                     <Button
                       variant="ghost"
-                      onClick={logout}
+                      onClick={handleLogout}
                       className="w-full justify-start px-3 mt-2 text-muted-foreground hover:text-foreground"
                     >
                       <LogOut className="w-4 h-4 mr-3" />
