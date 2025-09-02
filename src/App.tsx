@@ -2,11 +2,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute, AdminRoute } from "@/components/ProtectedRoute";
-
 import Index from "./pages/Index";
 import ReportIssue from "./pages/ReportIssue";
 import MapView from "./pages/MapView";
@@ -19,6 +18,15 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Component to handle authenticated user redirects from login page
+const LoginRedirect = () => {
+  return <Navigate to="/profile" replace />;
+};
+
+const AdminLoginRedirect = () => {
+  return <Navigate to="/admin" replace />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -27,37 +35,33 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
+            {/* Login Route - Always accessible but redirects if authenticated */}
             <Route path="/login" element={<Login />} />
             
-            {/* Routes within the main layout */}
-            <Route element={<Layout><Outlet /></Layout>}>
-              <Route path="/" element={<Index />} />
-              <Route path="/map" element={<MapView />} />
-
-              {/* Protected Routes for all logged-in users */}
-              <Route element={<ProtectedRoute />}>
-                <Route path="/report" element={<ReportIssue />} />
-                <Route path="/my-issues" element={<MyIssues />} />
-                <Route path="/profile" element={<Profile />} />
-              </Route>
-
-              {/* Protected Routes for Admins only */}
-              <Route element={<AdminRoute />}>
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/analytics" element={<Analytics />} />
-              </Route>
+            {/* Public Routes with Layout */}
+            <Route path="/" element={<Layout><Index /></Layout>} />
+            <Route path="/map" element={<Layout><MapView /></Layout>} />
+            
+            {/* Protected Routes for all logged-in users */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/report" element={<Layout><ReportIssue /></Layout>} />
+              <Route path="/my-issues" element={<Layout><MyIssues /></Layout>} />
+              <Route path="/profile" element={<Layout><Profile /></Layout>} />
             </Route>
-
+            
+            {/* Protected Routes for Admins only */}
+            <Route element={<AdminRoute />}>
+              <Route path="/admin" element={<Layout><AdminDashboard /></Layout>} />
+              <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
+            </Route>
+            
             {/* Catch-all Not Found Route */}
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<Layout><NotFound /></Layout>} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
-
-// We need to import Outlet for nested routes
-import { Outlet } from "react-router-dom";
 
 export default App;

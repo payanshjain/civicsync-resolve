@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://civic-sih-backend.onrender.com', // Changed to local backend
+  baseURL: ['https://civic-sih-backend.onrender.com', 'http://localhost:5001/api'], // Changed to local backend
   headers: {
     'Content-Type': 'application/json',
   },
